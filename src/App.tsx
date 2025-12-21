@@ -124,6 +124,11 @@ function App() {
       <Canvas
         camera={{ position: [0, 3, 6], fov: 50 }}
         shadows
+        gl={{ 
+          antialias: true,
+          alpha: false,
+          powerPreference: "high-performance"
+        }}
         style={{ background: 'linear-gradient(to bottom, #1a1a2e, #16213e)' }}
       >
         <ambientLight intensity={0.8} />
@@ -133,14 +138,14 @@ function App() {
           position={[4, 9, 6.5]} 
           intensity={1.0}
           castShadow
-          shadow-mapSize-width={2048}
-          shadow-mapSize-height={2048}
+          shadow-mapSize-width={4096}
+          shadow-mapSize-height={4096}
           shadow-camera-far={50}
           shadow-camera-left={-10}
           shadow-camera-right={10}
           shadow-camera-top={10}
           shadow-camera-bottom={-10}
-          shadow-radius={8}
+          shadow-radius={12}
           shadow-bias={-0.0001}
         />
         <DentureScene
