@@ -11,7 +11,6 @@ interface RotationControlProps {
 export default function RotationControl({
   rotation,
   onRotationChange,
-  isDragging,
   onDragChange
 }: RotationControlProps) {
   const sliderRef = useRef<HTMLDivElement>(null)
