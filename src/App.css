@@ -3,6 +3,12 @@
   height: 100vh;
   overflow: hidden;
   position: relative;
+  background: linear-gradient(to bottom, #1a1a2e, #16213e);
+}
+
+/* Custom cursor for tooth hover - using pointer cursor */
+body.tooth-hover {
+  cursor: pointer !important;
 }
 
 .instruction-text {
@@ -13,11 +19,68 @@
   z-index: 10;
   color: #ffffff;
   font-size: 18px;
+  font-weight: normal;
   text-align: center;
-  text-transform: uppercase;
   letter-spacing: 1px;
   opacity: 0.8;
   pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.arrow-bar-wrapper {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.arrow-bar-wrapper.reduced-chrome {
+  opacity: 0.6;
+}
+
+.gavin-text {
+  position: fixed;
+  left: 30px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center;
+  z-index: 10;
+  color: #ffffff;
+  font-size: 120px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 20px;
+  opacity: 0.12;
+  filter: blur(0.5px);
+  pointer-events: none;
+  white-space: nowrap;
+  margin-left: -200px;
+  transition: opacity 0.3s ease;
+}
+
+.gavin-text.fade-out {
+  opacity: 0.05;
+}
+
+.hale-text {
+  position: fixed;
+  right: -100px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center;
+  z-index: 10;
+  color: #ffffff;
+  font-size: 120px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 20px;
+  opacity: 0.12;
+  filter: blur(0.5px);
+  pointer-events: none;
+  white-space: nowrap;
+  margin-left: -200px;
+  transition: opacity 0.3s ease;
+}
+
+.hale-text.fade-out {
+  opacity: 0.05;
 }
 
 * {

@@ -1,0 +1,47 @@
+.arrow-bar-container {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.arrow-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 30px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 25px;
+}
+
+.drag-text {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  .arrow-bar {
+    padding: 8px 20px;
+    gap: 15px;
+  }
+  
+  .arrow {
+    font-size: 20px;
+  }
+  
+  .arrow-bar-line {
+    width: 150px;
+  }
+}
+

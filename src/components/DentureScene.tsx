@@ -1,7 +1,15 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Mesh, Vector3, Group, MeshStandardMaterial } from 'three'
-import { useGLTF } from '@react-three/drei'
+import { Mesh, Vector3, Group, MeshStandardMaterial, Shape } from 'three'
+import { useGLTF, Text } from '@react-three/drei'
+
+interface ToothTextPosition {
+  distance?: number // Distance from tooth along the curve
+  y?: number // Height above tooth
+  xOffset?: number // Left/right offset
+  zOffset?: number // Forward/back offset
+  rotationOffset?: number // Rotation offset in radians
+}
 
 interface ToothProps {
   position: [number, number, number]
@@ -9,13 +17,28 @@ interface ToothProps {
   onPull: (id: string) => void
   isSelected: boolean
   size: number
+  title: string // Title to show in popup
+  textPosition?: ToothTextPosition // Individual text position adjustments
 }
 
-function Tooth({ position, id, onPull, isSelected, size }: ToothProps) {
+function Tooth({ position, id, onPull, isSelected, size, title, textPosition }: ToothProps) {
   const meshRef = useRef<Mesh>(null)
   const [isHovered, setIsHovered] = useState(false)
   const originalPosition = new Vector3(...position)
   const pullDistance = 0.8
+
+  // Change cursor when hovering over tooth
+  useEffect(() => {
+    if (isHovered && !isSelected) {
+      // Use grab hand cursor for pulling action
+      document.body.style.cursor = 'grab'
+      return () => {
+        document.body.style.cursor = 'default'
+      }
+    } else {
+      document.body.style.cursor = 'default'
+    }
+  }, [isHovered, isSelected])
 
   useFrame(() => {
     if (meshRef.current) {
@@ -52,13 +75,85 @@ function Tooth({ position, id, onPull, isSelected, size }: ToothProps) {
           opacity={0}
         />
       </mesh>
-      {isSelected && (
-        <mesh position={[0, 0, pullDistance + 0.1]}>
-          <cylinderGeometry args={[0.02, 0.02, 0.3, 8]} />
-          <meshStandardMaterial color="#8b4513" />
-        </mesh>
-      )}
+      
+      {/* Text popup that appears on hover */}
+      {isHovered && !isSelected && (() => {
+        // Calculate angle based on position to follow the arch curvature
+        // Teeth on the left have negative X, teeth on the right have positive X
+        const angle = Math.atan2(position[0], position[2]) // Angle from center
+        
+        // Use individual text position adjustments if provided, otherwise use defaults
+        const textDistance = (textPosition?.distance ?? size * 2.5) // Distance from tooth along the curve
+        const textY = (textPosition?.y ?? size * 0.8) // Height above tooth
+        const textXOffset = textPosition?.xOffset ?? 0 // Left/right offset
+        const textZOffset = textPosition?.zOffset ?? 0 // Forward/back offset
+        const textRotationOffset = textPosition?.rotationOffset ?? 0 // Rotation offset
+        
+        // Position text along the arch curve, extending outward in front of the tooth
+        const textX = Math.sin(angle) * textDistance + textXOffset
+        const textZ = Math.cos(angle) * textDistance + textZOffset
+        
+        // Rotate text to be parallel to the arch (same direction as the curve)
+        const textRotation = angle + textRotationOffset // Parallel to the arch, extending outward
+        
+        return (
+          <Text
+            key={`text-${id}`}
+            position={[textX, textY, textZ]}
+            rotation={[0, textRotation, 0]}
+            fontSize={0.08}
+            color="#ffffff"
+            anchorX="center"
+            anchorY="middle"
+            outlineWidth={0.002}
+            outlineColor="#000000"
+            font="/fonts/FiraSansCondensed-Black.ttf"
+          >
+            {title}
+          </Text>
+        )
+      })()}
     </group>
+  )
+}
+
+// Custom shadow component that matches denture shape
+function DentureShadow() {
+  const shape = new Shape()
+  
+  // Create an arch shape that matches the denture (wider in middle, narrower at ends)
+  // Start from left side
+  shape.moveTo(-2.5, 0)
+  // Upper arch curve (left to center)
+  shape.quadraticCurveTo(-1.5, 1.2, 0, 1.5)
+  // Upper arch curve (center to right)
+  shape.quadraticCurveTo(1.5, 1.2, 2.5, 0)
+  // Lower arch curve (right to center)
+  shape.quadraticCurveTo(1.5, -1.2, 0, -1.5)
+  // Lower arch curve (center to left)
+  shape.quadraticCurveTo(-1.5, -1.2, -2.5, 0)
+  shape.closePath()
+  
+  const extrudeSettings = {
+    depth: 0.01,
+    bevelEnabled: false
+  }
+  
+  return (
+    <mesh 
+      position={[0, -1.2, 0]} 
+      rotation={[-Math.PI / 2, 0, 0]}
+      receiveShadow
+    >
+      <extrudeGeometry args={[shape, extrudeSettings]} />
+      <meshStandardMaterial
+        color="#000000"
+        transparent
+        opacity={0.15}
+        roughness={1}
+        metalness={0}
+      />
+    </mesh>
   )
 }
 
@@ -159,8 +254,51 @@ export default function DentureScene({ rotation, onToothPull, selectedTooth, por
   // Move them around to match your model - just change the numbers!
   const toothSize = 0.25        // Adjust this to make clickable zones bigger/smaller
   
+  // ===== INDIVIDUAL TEXT POSITION ADJUSTMENTS =====
+  // Adjust each tooth's text position separately by editing the values below
+  // Each tooth can have its own distance, y, xOffset, zOffset, and rotationOffset
+  // Leave values as undefined to use defaults
+  const textPositions: Record<string, ToothTextPosition> = {
+    'tooth-1': { // About Me
+      distance: undefined, // Uses default: size * 2.5 (or set a number like 0.6)
+      y: .02, // Uses default: size * 0.8 (or set a number like 0.2)
+      xOffset: -.45, // Left/right offset (positive = right, negative = left)
+      zOffset: .288, // Forward/back offset (positive = forward, negative = back)
+      rotationOffset: -.3 // Rotation offset in radians
+    },
+    'tooth-2': { // Projects
+      distance: undefined,
+      y: .02,
+      xOffset: -.35,
+      zOffset: .24,
+      rotationOffset: -.25
+    },
+    'tooth-3': { // Experience
+      distance: undefined,
+      y: .02,
+      xOffset: -.18,
+      zOffset: .21,
+      rotationOffset: -.13
+    },
+    'tooth-4': { // Education
+      distance: undefined,
+      y: .02,
+      xOffset: .18,
+      zOffset: .21,
+      rotationOffset: .05
+    },
+    'tooth-5': { // Contact
+      distance: undefined,
+      y: .02,
+      xOffset: .35,
+      zOffset: .24,
+      rotationOffset: .05
+    }
+  }
+  // ================================================
+  
   // Create teeth based on portfolio data - only create as many as we have content for
-  const teeth: Array<{ id: string; position: [number, number, number] }> = portfolioData.map((item, index) => {
+  const teeth: Array<{ id: string; position: [number, number, number], title: string, textPosition?: ToothTextPosition }> = portfolioData.map((item, index) => {
     // Default positions in an arch - adjust these to match your model
     // Comments show which content each position corresponds to
     const positions: [number, number, number][] = [
@@ -173,7 +311,9 @@ export default function DentureScene({ rotation, onToothPull, selectedTooth, por
     
     return {
       id: item.id,
-      position: positions[index] || [0, 1.0, 0] // Default position if more than 5
+      position: positions[index] || [0, 1.0, 0], // Default position if more than 5
+      title: item.title, // Use the title from portfolio data
+      textPosition: textPositions[item.id] // Individual text position for this tooth
     }
   })
   
@@ -185,6 +325,9 @@ export default function DentureScene({ rotation, onToothPull, selectedTooth, por
 
   return (
     <group ref={groupRef} rotation={[0, 0, 0]}>
+      {/* Soft denture-shaped shadow beneath the model */}
+      <DentureShadow />
+
       {/* 3D Models - Use separate jaws if available, otherwise use full mouth */}
       {upperJaw && (
         <primitive 
@@ -220,6 +363,8 @@ export default function DentureScene({ rotation, onToothPull, selectedTooth, por
           onPull={onToothPull}
           isSelected={selectedTooth === tooth.id}
           size={toothSize}
+          title={tooth.title}
+          textPosition={tooth.textPosition}
         />
       ))}
     </group>
