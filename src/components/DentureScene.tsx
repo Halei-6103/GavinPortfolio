@@ -24,6 +24,7 @@ interface ToothProps {
 function Tooth({ position, id, onPull, isSelected, size, title, textPosition }: ToothProps) {
   const meshRef = useRef<Mesh>(null)
   const [isHovered, setIsHovered] = useState(false)
+  const [textOpacity, setTextOpacity] = useState(0)
   const originalPosition = new Vector3(...position)
   const pullDistance = 0.8
 
@@ -40,7 +41,16 @@ function Tooth({ position, id, onPull, isSelected, size, title, textPosition }: 
     }
   }, [isHovered, isSelected])
 
-  useFrame(() => {
+  // Smooth fade in/out for text opacity
+  useEffect(() => {
+    if (isHovered && !isSelected) {
+      setTextOpacity(0.7)
+    } else {
+      setTextOpacity(0)
+    }
+  }, [isHovered, isSelected])
+
+  useFrame((_, delta) => {
     if (meshRef.current) {
       const targetZ = isSelected ? originalPosition.z + pullDistance : originalPosition.z
       meshRef.current.position.z += (targetZ - meshRef.current.position.z) * 0.1
@@ -49,6 +59,13 @@ function Tooth({ position, id, onPull, isSelected, size, title, textPosition }: 
         meshRef.current.rotation.y += 0.02
       }
     }
+    
+    // Smooth opacity transition for embedded feel
+    const targetOpacity = (isHovered && !isSelected) ? 0.7 : 0
+    setTextOpacity(prev => {
+      const diff = targetOpacity - prev
+      return prev + diff * delta * 8 // Smooth transition speed
+    })
   })
 
   const handleClick = () => {
@@ -96,21 +113,40 @@ function Tooth({ position, id, onPull, isSelected, size, title, textPosition }: 
         // Rotate text to be parallel to the arch (same direction as the curve)
         const textRotation = angle + textRotationOffset // Parallel to the arch, extending outward
         
+        // Only render if opacity > 0
+        if (textOpacity <= 0) return null
+
         return (
-          <Text
-            key={`text-${id}`}
-            position={[textX, textY, textZ]}
-            rotation={[0, textRotation, 0]}
-            fontSize={0.08}
-            color="#ffffff"
-            anchorX="center"
-            anchorY="middle"
-            outlineWidth={0.002}
-            outlineColor="#000000"
-            font="/fonts/FiraSansCondensed-Black.ttf"
-          >
-            {title}
-          </Text>
+          <group>
+            {/* Subtle shadow behind for depth */}
+            <Text
+              key={`text-shadow-${id}`}
+              position={[textX, textY - 0.005, textZ - 0.005]}
+              rotation={[0, textRotation, 0]}
+              fontSize={0.08}
+              color="#000000"
+              anchorX="center"
+              anchorY="middle"
+              font="/fonts/FiraSansCondensed-Black.ttf"
+            >
+              {title}
+            </Text>
+            {/* Main text with reduced opacity for embedded feel */}
+            <Text
+              key={`text-${id}`}
+              position={[textX, textY, textZ]}
+              rotation={[0, textRotation, 0]}
+              fontSize={0.08}
+              color={`rgba(255, 255, 255, ${textOpacity})`}
+              anchorX="center"
+              anchorY="middle"
+              outlineWidth={0.002}
+              outlineColor={`rgba(0, 0, 0, ${textOpacity * 0.5})`}
+              font="/fonts/FiraSansCondensed-Black.ttf"
+            >
+              {title}
+            </Text>
+          </group>
         )
       })()}
     </group>
@@ -229,11 +265,11 @@ export default function DentureScene({ rotation, onToothPull, selectedTooth, por
                         (meshName.includes('lower') && !meshName.includes('jaw') && !meshName.includes('gum') && !meshName.includes('base'))
         
         if (isTooth) {
-          // Tooth material - off-white
+          // Tooth material - off-white with increased specular
           child.material = new MeshStandardMaterial({
             color: '#f5f5f2',
-            roughness: 0.2,
-            metalness: 0
+            roughness: 0.15,
+            metalness: 0.1
           })
         } else {
           // Gum material - pink/reddish (for jaws, bases, denture base, etc.)
