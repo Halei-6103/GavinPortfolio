@@ -127,7 +127,7 @@ function Tooth({ position, id, onPull, isSelected, size, title, textPosition }: 
               color="#000000"
               anchorX="center"
               anchorY="middle"
-              font="/fonts/FiraSansCondensed-Black.ttf"
+              font={`${import.meta.env.BASE_URL}fonts/FiraSansCondensed-Black.ttf`}
             >
               {title}
             </Text>
@@ -142,7 +142,7 @@ function Tooth({ position, id, onPull, isSelected, size, title, textPosition }: 
               anchorY="middle"
               outlineWidth={0.002}
               outlineColor={`rgba(0, 0, 0, ${textOpacity * 0.5})`}
-              font="/fonts/FiraSansCondensed-Black.ttf"
+              font={`${import.meta.env.BASE_URL}fonts/FiraSansCondensed-Black.ttf`}
             >
               {title}
             </Text>
@@ -212,7 +212,7 @@ export default function DentureScene({ rotation, onToothPull, selectedTooth, por
   const groupRef = useRef<Group>(null)
   
   // Load full mouth model (always available)
-  const { scene: fullMouthScene } = useGLTF('/models/Full_mouth.glb')
+  const { scene: fullMouthScene } = useGLTF(`${import.meta.env.BASE_URL}models/Full_mouth.glb`)
   
   // Optional: Load separate jaw models if they exist
   // Convert your STL files to GLB and name them: upper_jaw.glb and lower_jaw.glb
@@ -221,9 +221,9 @@ export default function DentureScene({ rotation, onToothPull, selectedTooth, por
   let lowerJaw: any = null
   
   // Uncomment these when you have converted the STL files to GLB:
-  // const upperScene = useGLTF('/models/upper_jaw.glb')
+  // const upperScene = useGLTF(`${import.meta.env.BASE_URL}models/upper_jaw.glb`)
   // upperJaw = upperScene.scene.clone()
-  // const lowerScene = useGLTF('/models/lower_jaw.glb')
+  // const lowerScene = useGLTF(`${import.meta.env.BASE_URL}models/lower_jaw.glb`)
   // lowerJaw = lowerScene.scene.clone()
   
   const fullMouth = fullMouthScene.clone()
