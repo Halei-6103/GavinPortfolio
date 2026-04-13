@@ -3,13 +3,18 @@
   height: 100vh;
   overflow: hidden;
   position: relative;
-  background: radial-gradient(
-    circle at center,
-    #1a1d3a 0%,
-    #14172d 50%,
-    #0b0d18 100%
-  );
-  box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.35);
+}
+
+.background-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.scene-canvas {
+  position: relative;
+  z-index: 1;
 }
 
 /* Custom cursor for tooth hover - using pointer cursor */
@@ -22,7 +27,7 @@ body.tooth-hover {
   bottom: 120px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 10;
+  z-index: 20;
   color: #ffffff;
   font-size: 18px;
   font-weight: normal;
@@ -47,13 +52,13 @@ body.tooth-hover {
   top: 50%;
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: center;
-  z-index: 10;
-  color: #ffffff;
+  z-index: 20;
+  color: #000000;
   font-size: 120px;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 20px;
-  opacity: 0.12;
+  opacity: 0.5;
   filter: blur(0.5px);
   pointer-events: none;
   white-space: nowrap;
@@ -71,13 +76,13 @@ body.tooth-hover {
   top: 50%;
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: center;
-  z-index: 10;
-  color: #ffffff;
+  z-index: 20;
+  color: #000000;
   font-size: 120px;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 20px;
-  opacity: 0.12;
+  opacity: 0.5;
   filter: blur(0.5px);
   pointer-events: none;
   white-space: nowrap;

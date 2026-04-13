@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import DentureScene from './components/DentureScene'
 import ContentPanel from './components/ContentPanel'
 import ArrowBar from './components/ArrowBar'
+import Grainient from './components/Grainient'
 import './App.css'
 
 export interface PortfolioItem {
@@ -191,16 +192,42 @@ function App() {
 
   return (
     <div className="app-container" ref={containerRef}>
+      <div className="background-layer">
+        <Grainient
+          color1="#bdc8e1"
+          color2="#5227FF"
+          color3="#B19EEF"
+          timeSpeed={0.25}
+          colorBalance={0}
+          warpStrength={1}
+          warpFrequency={5}
+          warpSpeed={2}
+          warpAmplitude={50}
+          blendAngle={0}
+          blendSoftness={0.05}
+          rotationAmount={500}
+          noiseScale={2}
+          grainAmount={0.1}
+          grainScale={2}
+          grainAnimated={false}
+          contrast={1.5}
+          gamma={1}
+          saturation={1}
+          centerX={0}
+          centerY={0}
+          zoom={0.9}
+        />
+      </div>
       <Canvas
+        className="scene-canvas"
         camera={{ position: [0, 3, 6], fov: 50 }}
         shadows
         gl={{ 
           antialias: true,
-          alpha: false,
+          alpha: true,
           powerPreference: "high-performance"
         }}
       >
-        <color attach="background" args={['#1a1a2e']} />
         <ambientLight intensity={0.6} />
         <pointLight position={[10, 10, 10]} intensity={1.1} />
         <pointLight position={[-10, 10, 10]} intensity={0.9} />
